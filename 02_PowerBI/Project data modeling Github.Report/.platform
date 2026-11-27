@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Report",
+    "displayName": "Project data modeling Github"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "91cacf4f-af85-43fe-9cfb-245e22d5d6d5"
+  }
+}

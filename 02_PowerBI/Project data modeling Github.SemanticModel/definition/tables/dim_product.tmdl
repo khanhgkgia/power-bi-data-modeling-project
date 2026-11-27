@@ -1,0 +1,100 @@
+table dim_product
+	lineageTag: 579d6503-7b24-4930-89a8-ec78afd81040
+
+	column product_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 8e033354-754a-459e-a425-09b8cbce0960
+		summarizeBy: none
+		sourceColumn: product_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_code
+		dataType: string
+		lineageTag: a392b1eb-b443-446f-af93-43ebb4ebd583
+		summarizeBy: none
+		sourceColumn: product_code
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_name
+		dataType: string
+		lineageTag: dc1fe716-9bb9-49f7-8e12-d879fff8d629
+		summarizeBy: none
+		sourceColumn: product_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column brand
+		dataType: string
+		lineageTag: bed41ace-6675-42bc-9117-e1287825726e
+		summarizeBy: none
+		sourceColumn: brand
+
+		annotation SummarizationSetBy = Automatic
+
+	column category
+		dataType: string
+		lineageTag: 3570e3c7-0440-4d4a-a2fa-234c02316ae8
+		summarizeBy: none
+		sourceColumn: category
+
+		annotation SummarizationSetBy = Automatic
+
+	column subcategory
+		dataType: string
+		lineageTag: c3b3aafa-27fc-4da9-8232-0937f3561d12
+		summarizeBy: none
+		sourceColumn: subcategory
+
+		annotation SummarizationSetBy = Automatic
+
+	column unit_price
+		dataType: double
+		lineageTag: c6f5d0a9-257c-44a9-b34b-08100b80a611
+		summarizeBy: sum
+		sourceColumn: unit_price
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column primary_suppier
+		dataType: string
+		lineageTag: c17e896a-73bf-4e19-a110-269150460106
+		summarizeBy: none
+		sourceColumn: primary_suppier
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_description
+		dataType: string
+		lineageTag: 37fe0cff-160f-4e76-aff3-893db5fdad2b
+		summarizeBy: none
+		sourceColumn: product_description
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_product = m
+		mode: import
+		queryGroup: 02_Dimensions
+		source =
+				let
+				    Source = products,
+				    #"Filtered Rows" = Table.SelectRows(Source, each ([ProductCode] <> "ZZZ-000") and ([Brand] <> null)),
+				    #"Merged Queries" = Table.NestedJoin(#"Filtered Rows", {"SubcategoryName"}, subcategories, {"subcategory"}, "subcategories", JoinKind.LeftOuter),
+				    #"Expanded subcategories" = Table.ExpandTableColumn(#"Merged Queries", "subcategories", {"category"}, {"subcategories.category"}),
+				    #"Reordered Columns" = Table.ReorderColumns(#"Expanded subcategories",{"ProductCode", "ProductName", "Brand", "subcategories.category", "SubcategoryName", "UnitPrice", "PrimarySupplier", "ProductDescription", "hash_key", "source_id"}),
+				    #"Capitalized Each Word" = Table.TransformColumns(#"Reordered Columns",{{"subcategories.category", Text.Proper, type text}}),
+				    #"Added Index" = Table.AddIndexColumn(#"Capitalized Each Word", "Index", 1, 1, Int64.Type),
+				    #"Reordered Columns1" = Table.ReorderColumns(#"Added Index",{"Index", "ProductCode", "ProductName", "Brand", "subcategories.category", "SubcategoryName", "UnitPrice", "PrimarySupplier", "ProductDescription", "hash_key", "source_id"}),
+				    #"Renamed Columns" = Table.RenameColumns(#"Reordered Columns1",{{"Index", "product_id"}, {"ProductCode", "product_code"}, {"ProductName", "product_name"}, {"Brand", "brand"}, {"subcategories.category", "category"}, {"SubcategoryName", "subcategory"}, {"UnitPrice", "unit_price"}, {"PrimarySupplier", "primary_suppier"}, {"ProductDescription", "product_description"}}),
+				    #"Removed Columns" = Table.RemoveColumns(#"Renamed Columns",{"hash_key", "source_id"})
+				in
+				    #"Removed Columns"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

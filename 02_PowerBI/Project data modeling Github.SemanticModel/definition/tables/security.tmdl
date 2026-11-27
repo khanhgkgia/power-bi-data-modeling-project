@@ -1,0 +1,36 @@
+table security
+	lineageTag: b35eb757-23c0-4f41-ae85-edcf51b2031d
+
+	column UserEmail
+		dataType: string
+		lineageTag: 8042eee0-82ee-448f-8a0c-19b419525895
+		summarizeBy: none
+		sourceColumn: UserEmail
+
+		annotation SummarizationSetBy = Automatic
+
+	column Region
+		dataType: string
+		lineageTag: aafdb4ac-f660-4243-a264-67ad2cff9bb9
+		summarizeBy: none
+		sourceColumn: Region
+
+		annotation SummarizationSetBy = Automatic
+
+	partition security = m
+		mode: import
+		queryGroup: 01_Stage
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents("D:\DULIEU\Power BI Learning\powerbi-ultimate-course\datasets\05_project_clean_model\raw_tables.xlsx"), null, true),
+				    security_Sheet = Source{[Item="security",Kind="Sheet"]}[Data],
+				    #"Changed Type" = Table.TransformColumnTypes(security_Sheet,{{"Column1", type text}, {"Column2", type text}}),
+				    #"Promoted Headers" = Table.PromoteHeaders(#"Changed Type", [PromoteAllScalars=true]),
+				    #"Changed Type1" = Table.TransformColumnTypes(#"Promoted Headers",{{"UserEmail", type text}, {"Region", type text}})
+				in
+				    #"Changed Type1"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

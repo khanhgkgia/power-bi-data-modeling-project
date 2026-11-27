@@ -1,0 +1,56 @@
+model Model
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: en-US
+	valueFilterBehavior: independent
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+queryGroup 01_Stage
+
+	annotation PBI_QueryGroupOrder = 0
+
+queryGroup 02_Dimensions
+
+	annotation PBI_QueryGroupOrder = 1
+
+queryGroup 03_Facts
+
+	annotation PBI_QueryGroupOrder = 2
+
+queryGroup 04_Support
+
+	annotation PBI_QueryGroupOrder = 3
+
+annotation __PBI_TimeIntelligenceEnabled = 1
+
+annotation PBI_QueryOrder = ["Address","CAMPAIGN_LOG","campaign_skus","cities","CUST_MASTER","customer_contacts","exchange_rates","inventory","invoice_lines","INVOICES","order_line_items","ORDERS_2025","ORDERS_2026","products","payments","regions","sales_targets","security","shipments","subcategories","user_details","dim_customer","dim_product","dim_order_flags","orders","channels","fact_sales","dim_geography","fact_inventory","dim_campaign","fact_campaign","factless_fact_campaign_promotion","fact_order_process","fact_sales_targets"]
+
+annotation PBI_ProTooling = ["DevMode"]
+
+ref table DateTableTemplate_4b1caa11-d072-4350-bf31-572dffe1437e
+ref table security
+ref table dim_customer
+ref table dim_product
+ref table dim_order_flags
+ref table fact_sales
+ref table dim_geography
+ref table fact_inventory
+ref table dim_campaign
+ref table LocalDateTable_35ec77f9-3a8b-4f42-8895-8cb917969391
+ref table LocalDateTable_be6d5fff-cf9b-4cb0-a660-dfb05cf23775
+ref table fact_campaign
+ref table factless_fact_campaign_promotion
+ref table fact_order_process
+ref table LocalDateTable_e6b9401f-30ea-49ba-ba9e-9b4b2cefd81a
+ref table LocalDateTable_1dec8907-f6d6-4f18-a02d-d4cfeebec1e0
+ref table LocalDateTable_6fc6134a-acfc-4fa9-ab9f-bdabdf290a4d
+ref table LocalDateTable_40f23014-b945-43c9-8340-37fb4f9f4f49
+ref table fact_sales_targets
+ref table LocalDateTable_d92647a6-e982-4023-a1f9-e80d214a9a10
+ref table dim_date
+ref table LocalDateTable_41619edf-e59a-4276-9904-d2839dad806d
+
+ref cultureInfo en-US
+

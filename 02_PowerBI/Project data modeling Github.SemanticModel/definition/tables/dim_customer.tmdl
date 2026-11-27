@@ -1,0 +1,151 @@
+table dim_customer
+	lineageTag: 1a996944-fb69-407e-b1d2-73b00b95752c
+
+	column customer_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 8109ab11-802a-4cdb-80b9-811a4d1075ff
+		summarizeBy: none
+		sourceColumn: customer_id
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = User
+
+	column customer_name
+		dataType: string
+		lineageTag: b87e2fad-2c1a-4717-9403-e63ed6f2e14a
+		summarizeBy: none
+		sourceColumn: customer_name
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column segment
+		dataType: string
+		lineageTag: 1b4a0889-b4ef-4a5f-80c9-730343073739
+		summarizeBy: none
+		sourceColumn: segment
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column account_manager
+		dataType: string
+		lineageTag: cdbf8a4d-0cb7-40b2-bf31-011dca96c762
+		summarizeBy: none
+		sourceColumn: account_manager
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column payment_term
+		dataType: string
+		lineageTag: 478bcc48-1b22-4a3a-8dd2-538163f40418
+		summarizeBy: none
+		sourceColumn: payment_term
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column contact_name
+		dataType: string
+		lineageTag: 2e4efae1-c3e3-4b2d-9c83-e9fe8a306681
+		summarizeBy: none
+		sourceColumn: contact_name
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column email
+		dataType: string
+		lineageTag: 63904acc-cba0-476c-8656-1f9d0d71850d
+		summarizeBy: none
+		sourceColumn: email
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column street
+		dataType: string
+		lineageTag: 5d8a69d5-c8c1-42ee-8bfd-d1076deec469
+		summarizeBy: none
+		sourceColumn: street
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column city
+		dataType: string
+		lineageTag: 27c9c1db-a3f6-4759-9a4f-f33c9d3f64be
+		summarizeBy: none
+		sourceColumn: city
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column region
+		dataType: string
+		lineageTag: 441c5346-9c50-4493-a68f-f4228b7ebb08
+		summarizeBy: none
+		sourceColumn: region
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column credit_limit
+		dataType: int64
+		formatString: 0
+		lineageTag: 46581bff-eacd-4484-94df-4bbb635712df
+		summarizeBy: none
+		sourceColumn: credit_limit
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = User
+
+	column phone
+		dataType: string
+		lineageTag: d45ff6fa-e9e6-4cc4-840d-bcd7f152be38
+		summarizeBy: none
+		sourceColumn: phone
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_customer = m
+		mode: import
+		queryGroup: 02_Dimensions
+		source =
+				let
+				    Source = CUST_MASTER,
+				    #"Filtered Rows" = Table.SelectRows(Source, each ([CustomerID] <> 9999)),
+				    #"Merged Queries" = Table.NestedJoin(#"Filtered Rows", {"CustomerID"}, customer_contacts, {"CustomerID"}, "customer_contacts", JoinKind.LeftOuter),
+				    #"Expanded customer_contacts" = Table.ExpandTableColumn(#"Merged Queries", "customer_contacts", {"ContactName", "Email", "IsPrimary"}, {"customer_contacts.ContactName", "customer_contacts.Email", "customer_contacts.IsPrimary"}),
+				    #"Merged Queries1" = Table.NestedJoin(#"Expanded customer_contacts", {"AddressID"}, Address, {"AddressID"}, "Address", JoinKind.LeftOuter),
+				    #"Expanded Address" = Table.ExpandTableColumn(#"Merged Queries1", "Address", {"Street", "CityName"}, {"Address.Street", "Address.CityName"}),
+				    #"Merged Queries2" = Table.NestedJoin(#"Expanded Address", {"Address.CityName"}, cities, {"CityName"}, "cities", JoinKind.LeftOuter),
+				    #"Expanded cities" = Table.ExpandTableColumn(#"Merged Queries2", "cities", {"RegionName"}, {"cities.RegionName"}),
+				    #"Removed Columns" = Table.RemoveColumns(#"Expanded cities",{"AddressID", "hash_key", "source_id", "customer_contacts.IsPrimary"}),
+				    #"Merged Queries3" = Table.NestedJoin(#"Removed Columns", {"CustomerID"}, user_details, {"UserID"}, "user_details", JoinKind.LeftOuter),
+				    #"Expanded user_details" = Table.ExpandTableColumn(#"Merged Queries3", "user_details", {"CreditLimit", "Phone"}, {"user_details.CreditLimit", "user_details.Phone"}),
+				    #"Renamed Columns" = Table.RenameColumns(#"Expanded user_details",{{"CustomerID", "customer_id"}, {"CustomerName", "customer_name"}, {"Segment", "segment"}, {"AccountManager", "account_manager"}, {"PaymentTerms", "payment_term"}, {"customer_contacts.ContactName", "contact_name"}, {"customer_contacts.Email", "email"}, {"Address.Street", "street"}, {"Address.CityName", "city"}, {"cities.RegionName", "region"}, {"user_details.CreditLimit", "credit_limit"}, {"user_details.Phone", "phone"}})
+				in
+				    #"Renamed Columns"
+
+	changedProperty = IsHidden
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

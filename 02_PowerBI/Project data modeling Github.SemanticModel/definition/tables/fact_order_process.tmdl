@@ -1,0 +1,122 @@
+table fact_order_process
+	lineageTag: ad1b0a20-91d0-407c-a7d3-06c850b2ea66
+
+	column order_id
+		dataType: string
+		lineageTag: f5ea7de3-fb3c-47a4-81ef-38dcdacd3694
+		summarizeBy: none
+		sourceColumn: order_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column customer_name
+		dataType: string
+		lineageTag: 2ed86772-f72f-4955-889e-3d8954be8f18
+		summarizeBy: none
+		sourceColumn: customer_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column order_date
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 77a88fb9-c859-4d8b-b935-ead9a76eeb81
+		summarizeBy: none
+		sourceColumn: order_date
+
+		annotation SummarizationSetBy = Automatic
+
+	column ship_date
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: fff9c028-fde4-4544-94a1-818663ff9916
+		summarizeBy: none
+		sourceColumn: ship_date
+
+		variation Variation
+			isDefault
+			relationship: 7ff862d1-f214-4765-8832-583b55c0eadc
+			defaultHierarchy: LocalDateTable_e6b9401f-30ea-49ba-ba9e-9b4b2cefd81a.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+		annotation PBI_FormatHint = {"isDateTimeCustom":true}
+
+	column delivery_date
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: 02050b5b-2473-46d5-9cd9-9ffc1d7f1605
+		summarizeBy: none
+		sourceColumn: delivery_date
+
+		variation Variation
+			isDefault
+			relationship: 2a5e74be-9a20-4775-8dc6-78e428bb57c8
+			defaultHierarchy: LocalDateTable_1dec8907-f6d6-4f18-a02d-d4cfeebec1e0.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+		annotation PBI_FormatHint = {"isDateTimeCustom":true}
+
+	column invoice_date
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: 8ad8e1c3-af17-4f6a-9b35-496d9e7278e6
+		summarizeBy: none
+		sourceColumn: invoice_date
+
+		variation Variation
+			isDefault
+			relationship: 23c8ab2a-c0f5-4139-8330-871396f4e12a
+			defaultHierarchy: LocalDateTable_6fc6134a-acfc-4fa9-ab9f-bdabdf290a4d.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+		annotation PBI_FormatHint = {"isDateTimeCustom":true}
+
+	column pay_date
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: eb76dc9b-b7d7-4410-bcc5-f6d12c66d9c6
+		summarizeBy: none
+		sourceColumn: pay_date
+
+		variation Variation
+			isDefault
+			relationship: b975be44-1bf3-4b68-a479-768be9e46d09
+			defaultHierarchy: LocalDateTable_40f23014-b945-43c9-8340-37fb4f9f4f49.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+		annotation PBI_FormatHint = {"isDateTimeCustom":true}
+
+	partition fact_order_process = m
+		mode: import
+		queryGroup: 03_Facts
+		source =
+				let
+				    Source = orders,
+				    #"Removed Other Columns" = Table.SelectColumns(Source,{"OrderID", "CustomerName", "OrderDate"}),
+				    #"Merged Queries" = Table.NestedJoin(#"Removed Other Columns", {"OrderID"}, shipments, {"OrderID"}, "shipments", JoinKind.LeftOuter),
+				    #"Expanded shipments" = Table.ExpandTableColumn(#"Merged Queries", "shipments", {"ShipDate", "DeliveryDate"}, {"shipments.ShipDate", "shipments.DeliveryDate"}),
+				    #"Merged Queries1" = Table.NestedJoin(#"Expanded shipments", {"OrderID"}, INVOICES, {"OrderID"}, "INVOICES", JoinKind.LeftOuter),
+				    #"Expanded INVOICES" = Table.ExpandTableColumn(#"Merged Queries1", "INVOICES", {"InvoiceID", "InvoiceDate"}, {"INVOICES.InvoiceID", "INVOICES.InvoiceDate"}),
+				    #"Merged Queries2" = Table.NestedJoin(#"Expanded INVOICES", {"INVOICES.InvoiceID"}, payments, {"InvoiceID"}, "payments", JoinKind.LeftOuter),
+				    #"Expanded payments" = Table.ExpandTableColumn(#"Merged Queries2", "payments", {"PayDate"}, {"payments.PayDate"}),
+				    #"Removed Columns" = Table.RemoveColumns(#"Expanded payments",{"INVOICES.InvoiceID"}),
+				    #"Renamed Columns" = Table.RenameColumns(#"Removed Columns",{{"OrderID", "order_id"}, {"CustomerName", "customer_name"}, {"OrderDate", "order_date"}, {"shipments.ShipDate", "ship_date"}, {"shipments.DeliveryDate", "delivery_date"}, {"INVOICES.InvoiceDate", "invoice_date"}, {"payments.PayDate", "pay_date"}})
+				in
+				    #"Renamed Columns"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
