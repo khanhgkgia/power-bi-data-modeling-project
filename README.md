@@ -41,9 +41,9 @@ The project follows these main stages:
 
 ## Repository Contents
 
-- `02_PowerBI/` – Power BI project files.
-- `03_Documentation/` – Data modeling methodology and data dictionary.
-- `04_Screenshots/` – Screenshots of the data model and reports.
+- `01_Project/` – Power BI raw project files.
+- `02_PowerBI/` – Cleaned data model.
+- `03_Docummentation/` – Data modeling methodology, screenshots of the data model and reports. 
 
 ## Project Status
 
