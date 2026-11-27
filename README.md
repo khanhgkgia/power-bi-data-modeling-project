@@ -1,5 +1,5 @@
 # power-bi-data-modeling-project
-Self-project Power BI focuses on cleaning data model. 
+End-to-end Power BI data preparation and dimensional modeling project.
 
 ## Project Overview
 
