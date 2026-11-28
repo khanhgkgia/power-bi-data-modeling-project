@@ -1,4 +1,4 @@
-# power-bi-data-modeling-project
+# Power-BI-data-modeling-project
 End-to-end Power BI data preparation and dimensional modeling project.
 
 ## Project Overview
